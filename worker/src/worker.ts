@@ -60,6 +60,46 @@ export default {
       return json({ ok: true, service: "onetoo-ai-search-v2", time: nowIso() });
     }
 
+    // Trust discovery (decade-stable): AI Search inherits trust root from onetoo.eu
+    if (u.pathname === "/trust" && req.method === "GET") {
+      return json({
+        ok: true,
+        service: "onetoo-ai-search-v2",
+        trust_root: "https://www.onetoo.eu/.well-known/minisign.pub",
+        key_history: "https://www.onetoo.eu/.well-known/key-history.json",
+        dumps_sha256: "https://www.onetoo.eu/dumps/sha256.json",
+        dumps_release: "https://www.onetoo.eu/dumps/release.json",
+        active_kid_hint: "BEAF18316BE2FC65",
+        accepted_set_url: env.ACCEPTED_SET_URL,
+        accepted_set_sig_url: env.ACCEPTED_SET_URL + ".minisig"
+      }, 200, {
+        "access-control-allow-origin": "*",
+        "cache-control": "public, max-age=300"
+      });
+    }
+
+    if (u.pathname === "/.well-known/ai-trust.json" && req.method === "GET") {
+      return json({
+        schema: "tfws-ai-trust/v1",
+        updated_at: nowIso(),
+        service: "onetoo-ai-search-v2",
+        trust_root: "https://www.onetoo.eu/.well-known/minisign.pub",
+        key_history: "https://www.onetoo.eu/.well-known/key-history.json",
+        dumps: {
+          sha256: "https://www.onetoo.eu/dumps/sha256.json",
+          release: "https://www.onetoo.eu/dumps/release.json"
+        },
+        accepted_set: {
+          url: env.ACCEPTED_SET_URL,
+          sig_url: env.ACCEPTED_SET_URL + ".minisig"
+        },
+        active_kid_hint: "BEAF18316BE2FC65"
+      }, 200, {
+        "access-control-allow-origin": "*",
+        "cache-control": "public, max-age=300"
+      });
+    }
+
     if (u.pathname === "/search/v2" && req.method === "GET") {
       const q = (u.searchParams.get("q") || "").trim();
       const lane = getLane(u, env);
