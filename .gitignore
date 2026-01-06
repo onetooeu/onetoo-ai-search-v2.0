@@ -16,3 +16,8 @@ artifacts/work/*
 # Node
 node_modules/
 dist/
+
+# Release artifacts (never commit)
+*.zip
+*.minisig
+sha256.txt
