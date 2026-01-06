@@ -49,6 +49,66 @@ function replayWindowOk(ts: string): boolean {
   return diff <= sevenDays;
 }
 
+function openapiDoc(origin: string) {
+  return {
+    openapi: "3.0.3",
+    info: {
+      title: "ONETOO AI Search API",
+      version: "2.0",
+      description: "Thin, decade-stable AI search endpoint. Demo scaffold returns deterministic results and a proof bundle stub."
+    },
+    servers: [{ url: origin }],
+    paths: {
+      "/health": {
+        get: { summary: "Health check", responses: { "200": { description: "OK" } } }
+      },
+      "/healthz": {
+        get: { summary: "Health check (alias)", responses: { "200": { description: "OK" } } }
+      },
+      "/openapi.json": {
+        get: { summary: "OpenAPI doc", responses: { "200": { description: "OpenAPI JSON" } } }
+      },
+      "/trust": {
+        get: { summary: "Trust discovery (human-friendly)", responses: { "200": { description: "Trust discovery JSON" } } }
+      },
+      "/.well-known/ai-trust.json": {
+        get: { summary: "Trust discovery (machine-readable)", responses: { "200": { description: "TFWS AI trust JSON" } } }
+      },
+      "/search/v1": {
+        get: {
+          summary: "Search (alias)",
+          parameters: [
+            { name: "q", in: "query", required: false, schema: { type: "string" } },
+            { name: "lane", in: "query", required: false, schema: { type: "string", enum: ["stable", "sandbox"] } },
+            { name: "limit", in: "query", required: false, schema: { type: "integer", minimum: 1, maximum: 100 } }
+          ],
+          responses: { "200": { description: "Search results" } }
+        }
+      },
+      "/search/v2": {
+        get: {
+          summary: "Search",
+          parameters: [
+            { name: "q", in: "query", required: false, schema: { type: "string" } },
+            { name: "lane", in: "query", required: false, schema: { type: "string", enum: ["stable", "sandbox"] } },
+            { name: "limit", in: "query", required: false, schema: { type: "integer", minimum: 1, maximum: 100 } }
+          ],
+          responses: { "200": { description: "Search results" } }
+        }
+      },
+      "/contrib/v2/submit": {
+        post: { summary: "Submit contribution (pending)", responses: { "202": { description: "Accepted into pending store" } } }
+      },
+      "/contrib/v2/pending": {
+        get: { summary: "List pending contributions (dev)", responses: { "200": { description: "Pending list" } } }
+      },
+      "/contrib/v2/accepted": {
+        get: { summary: "Get accepted-set URL (out-of-band verification)", responses: { "200": { description: "Accepted-set pointer" } } }
+      }
+    }
+  };
+}
+
 // Local dev store
 const pendingStore = new MemoryPendingStore();
 
@@ -56,11 +116,17 @@ export default {
   async fetch(req: Request, env: Env): Promise<Response> {
     const u = new URL(req.url);
 
+    if (u.pathname === "/openapi.json" && req.method === "GET") {
+      return json(openapiDoc(u.origin), 200, {
+        "access-control-allow-origin": "*",
+        "cache-control": "public, max-age=300"
+      });
+    }
+
     if (u.pathname === "/healthz") {
       return json({ ok: true, service: "onetoo-ai-search-v2", time: nowIso() });
     }
 
-    // Alias for older clients / OpenAPI compatibility
     if (u.pathname === "/health") {
       return json({ ok: true, service: "onetoo-ai-search-v2", time: nowIso() });
     }
@@ -110,9 +176,6 @@ export default {
       const lane = getLane(u, env);
       const limit = clampLimit(u.searchParams.get("limit"), Number(env.MAX_LIMIT || 20));
 
-      // v2 decade-stable default behavior:
-      // - stable lane is served from published signed artifacts (accepted set + index manifest + shards)
-      // In this scaffold we return deterministic demo output.
       const results = q ? [{
         url: "https://onetoo.eu/",
         title: "onetoo.eu — Trust-First AI Hub",
@@ -154,12 +217,10 @@ export default {
       try { body = await req.json(); }
       catch { return json({ ok: false, error: "invalid_json" }, 400); }
 
-      // Basic replay window check
       if (!body?.timestamp || !replayWindowOk(String(body.timestamp))) {
         return json({ ok: false, error: "replay_window_failed" }, 400);
       }
 
-      // Verify author signature (stubbed)
       const sig = await verifyAuthorSignature(body);
       if (!sig.ok) return json({ ok: false, error: "signature_failed", reason: sig.reason }, 400);
 
@@ -176,7 +237,6 @@ export default {
     }
 
     if (u.pathname === "/contrib/v2/pending" && req.method === "GET") {
-      // In production: protect (maintainers only).
       const limit = clampLimit(u.searchParams.get("limit"), 50);
       const list = await pendingStore.list(limit);
       return json({ ok: true, count: list.length, items: list });
@@ -187,7 +247,6 @@ export default {
     }
 
     if (u.pathname === "/contrib/v2/accepted" && req.method === "GET") {
-      // Decade-stable: serve accepted-set from published artifact URL (trust hub)
       return json({
         ok: true,
         accepted_set_url: env.ACCEPTED_SET_URL,
