@@ -28,7 +28,7 @@ def main():
 
     manifest = {
         "version":"2.0",
-        "generated_at": datetime.datetime.utcnow().replace(microsecond=0).isoformat()+"Z",
+        "generated_at": datetime.datetime.now(datetime.UTC).replace(microsecond=0).isoformat().replace("+00:00","Z"),
         "lane":"stable",
         "accepted_set_ref": {
             "url":"https://onetoo.eu/dumps/contrib-accepted.json",

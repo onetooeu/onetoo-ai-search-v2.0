@@ -54,7 +54,7 @@ def main():
                     "base": base + "/",
                     "url": url,
                     "sha256": sha256_hex(data),
-                    "fetched_at": datetime.datetime.utcnow().replace(microsecond=0).isoformat()+"Z",
+                    "fetched_at": datetime.datetime.now(datetime.UTC).replace(microsecond=0).isoformat().replace("+00:00","Z"),
                     "ok": True
                 })
             except Exception as e:

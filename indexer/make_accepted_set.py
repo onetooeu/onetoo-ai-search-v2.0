@@ -26,7 +26,7 @@ def main():
 
     doc = {
         "version":"2.0",
-        "generated_at": datetime.datetime.utcnow().replace(microsecond=0).isoformat()+"Z",
+        "generated_at": datetime.datetime.now(datetime.UTC).replace(microsecond=0).isoformat().replace("+00:00","Z"),
         "policy_ref":"https://onetoo.eu/.well-known/ai-search-acceptance-policy.txt",
         "accepted":[
             {"id": i, "sha256": i, "author_key_id":"unknown", "contrib_type":"unknown", "timestamp": doc_ts}
