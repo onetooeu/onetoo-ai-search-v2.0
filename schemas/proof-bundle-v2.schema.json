@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://onetoo.eu/schemas/proof-bundle-v2.schema.json",
+  "title": "Proof Bundle v2",
+  "type": "object",
+  "required": [
+    "version",
+    "generated_at",
+    "accepted_set",
+    "verified_sources",
+    "checks"
+  ],
+  "properties": {
+    "version": {
+      "type": "string",
+      "const": "2.0"
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "accepted_set": {
+      "type": "object",
+      "required": [
+        "url",
+        "sha256",
+        "sig_url"
+      ],
+      "properties": {
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "sha256": {
+          "type": "string"
+        },
+        "sig_url": {
+          "type": "string",
+          "format": "uri"
+        }
+      },
+      "additionalProperties": false
+    },
+    "verified_sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "base_url",
+          "status",
+          "checks"
+        ],
+        "properties": {
+          "base_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "verified",
+              "partial",
+              "failed"
+            ]
+          },
+          "checks": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "checks": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "additionalProperties": false
+}

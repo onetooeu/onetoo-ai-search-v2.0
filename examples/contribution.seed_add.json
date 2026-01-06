@@ -1,0 +1,45 @@
+{
+  "version": "2.0",
+  "contrib_type": "seed_add",
+  "context": {
+    "target": "https://example.org",
+    "lane_hint": "sandbox",
+    "tags": [
+      "seed",
+      "example"
+    ]
+  },
+  "payload": {
+    "base_url": "https://example.org",
+    "allowed_paths": [
+      "/.well-known/",
+      "/api/v1/",
+      "/dumps/"
+    ]
+  },
+  "evidence": {
+    "urls": [
+      "https://example.org/.well-known/ai-trust-hub.json"
+    ],
+    "hashes": [
+      {
+        "alg": "sha256",
+        "value": "TODO"
+      }
+    ],
+    "notes": "Example seed proposal"
+  },
+  "author": {
+    "key_id": "contrib-demo-001",
+    "pubkey_ref": "https://onetoo.eu/.well-known/minisign.pub",
+    "sig_alg": "minisign",
+    "name": "demo"
+  },
+  "timestamp": "2026-01-06T00:00:00Z",
+  "nonce": "0123456789abcdef0123456789abcdef",
+  "signature": {
+    "alg": "minisign",
+    "over": "canonical_json",
+    "value": "TODO"
+  }
+}

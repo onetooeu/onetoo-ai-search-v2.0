@@ -1,0 +1,31 @@
+name = "onetoo-ai-search-v2"
+main = "src/worker.ts"
+compatibility_date = "2026-01-06"
+
+# Production bindings (recommended)
+# - PENDING_KV: append-only pointer store for pending ids
+# - PENDING_R2: stores full pending contribution JSON by id
+# - STABLE_R2: stores published signed artifacts and shards (or fetch from onetoo-eu)
+# - NONCE_KV: replay protection (nonce cache)
+#
+# [[kv_namespaces]]
+# binding = "NONCE_KV"
+# id = "xxxx"
+#
+# [[kv_namespaces]]
+# binding = "PENDING_KV"
+# id = "yyyy"
+#
+# [[r2_buckets]]
+# binding = "PENDING_R2"
+# bucket_name = "onetoo-ai-search-pending"
+#
+# [[r2_buckets]]
+# binding = "STABLE_R2"
+# bucket_name = "onetoo-ai-search-stable"
+
+[vars]
+LANE_DEFAULT = "stable"
+MAX_LIMIT = "20"
+ACCEPTED_SET_URL = "https://onetoo.eu/dumps/contrib-accepted.json"
+INDEX_MANIFEST_URL = "https://onetoo.eu/dumps/ai-search-index.json"

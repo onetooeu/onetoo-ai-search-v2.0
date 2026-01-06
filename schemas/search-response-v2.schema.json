@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://onetoo.eu/schemas/search-response-v2.schema.json",
+  "title": "Search Response v2",
+  "type": "object",
+  "required": [
+    "version",
+    "query",
+    "lane",
+    "results",
+    "proof"
+  ],
+  "properties": {
+    "version": {
+      "type": "string",
+      "const": "2.0"
+    },
+    "query": {
+      "type": "string"
+    },
+    "lane": {
+      "type": "string",
+      "enum": [
+        "stable",
+        "sandbox"
+      ]
+    },
+    "results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "url",
+          "title",
+          "score",
+          "trust_state"
+        ],
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "title": {
+            "type": "string"
+          },
+          "snippet": {
+            "type": "string"
+          },
+          "score": {
+            "type": "number"
+          },
+          "trust_state": {
+            "$ref": "https://onetoo.eu/schemas/trust-state-v2.schema.json"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "proof": {
+      "$ref": "https://onetoo.eu/schemas/proof-bundle-v2.schema.json"
+    }
+  },
+  "additionalProperties": false
+}

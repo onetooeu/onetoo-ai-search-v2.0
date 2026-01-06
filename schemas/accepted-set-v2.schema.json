@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://onetoo.eu/schemas/accepted-set-v2.schema.json",
+  "title": "Accepted Set v2",
+  "type": "object",
+  "required": [
+    "version",
+    "generated_at",
+    "accepted",
+    "maintainer",
+    "merkle_root",
+    "signature",
+    "policy_ref"
+  ],
+  "properties": {
+    "version": {
+      "type": "string",
+      "const": "2.0"
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "policy_ref": {
+      "type": "string",
+      "format": "uri"
+    },
+    "accepted": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "sha256",
+          "author_key_id",
+          "contrib_type",
+          "timestamp"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "sha256": {
+            "type": "string"
+          },
+          "author_key_id": {
+            "type": "string"
+          },
+          "contrib_type": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "maintainer": {
+      "type": "object",
+      "required": [
+        "key_id",
+        "pubkey_ref"
+      ],
+      "properties": {
+        "key_id": {
+          "type": "string"
+        },
+        "pubkey_ref": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "merkle_root": {
+      "type": "string"
+    },
+    "signature": {
+      "type": "object",
+      "required": [
+        "alg",
+        "value"
+      ],
+      "properties": {
+        "alg": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,173 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://onetoo.eu/schemas/contribution-v2.schema.json",
+  "title": "TFWS AI Search Contribution v2",
+  "type": "object",
+  "required": [
+    "version",
+    "contrib_type",
+    "payload",
+    "author",
+    "timestamp",
+    "nonce",
+    "signature",
+    "context"
+  ],
+  "properties": {
+    "version": {
+      "type": "string",
+      "const": "2.0"
+    },
+    "contrib_type": {
+      "type": "string",
+      "enum": [
+        "seed_add",
+        "seed_remove",
+        "rank_rule",
+        "spam_report",
+        "incident_report",
+        "schema_patch",
+        "quality_signal",
+        "trust_annotation"
+      ]
+    },
+    "context": {
+      "type": "object",
+      "required": [
+        "target",
+        "lane_hint"
+      ],
+      "properties": {
+        "target": {
+          "type": "string",
+          "description": "What is affected (domain/base URL, schema id, etc.)"
+        },
+        "lane_hint": {
+          "type": "string",
+          "enum": [
+            "stable",
+            "sandbox",
+            "both"
+          ],
+          "description": "Suggested evaluation lane"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "payload": {
+      "type": "object"
+    },
+    "evidence": {
+      "type": "object",
+      "properties": {
+        "urls": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        "hashes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "alg",
+              "value"
+            ],
+            "properties": {
+              "alg": {
+                "type": "string"
+              },
+              "value": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "notes": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "author": {
+      "type": "object",
+      "required": [
+        "key_id",
+        "pubkey_ref",
+        "sig_alg"
+      ],
+      "properties": {
+        "key_id": {
+          "type": "string"
+        },
+        "pubkey_ref": {
+          "type": "string",
+          "description": "URL or inline public key reference"
+        },
+        "sig_alg": {
+          "type": "string",
+          "enum": [
+            "minisign",
+            "sigstore",
+            "ed25519"
+          ]
+        },
+        "name": {
+          "type": "string"
+        },
+        "reputation_hint": {
+          "type": "number",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "nonce": {
+      "type": "string",
+      "minLength": 16,
+      "maxLength": 128
+    },
+    "signature": {
+      "type": "object",
+      "required": [
+        "alg",
+        "value",
+        "over"
+      ],
+      "properties": {
+        "alg": {
+          "type": "string",
+          "enum": [
+            "minisign",
+            "sigstore",
+            "ed25519"
+          ]
+        },
+        "over": {
+          "type": "string",
+          "enum": [
+            "canonical_json"
+          ],
+          "description": "What was signed"
+        },
+        "value": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
