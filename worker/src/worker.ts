@@ -1,4 +1,3 @@
-```ts
 import { canonicalize } from "../../common/canon";
 import { MemoryPendingStore } from "./storage";
 import { verifyAuthorSignature } from "./verify";
@@ -13,31 +12,27 @@ type Env = {
   // PENDING_R2?: R2Bucket;
 };
 
-function nowIso() {
-  return new Date().toISOString();
-}
+function nowIso() { return new Date().toISOString(); }
 
-function json(data: unknown, status = 200, headers: Record<string, string> = {}) {
+function json(data: unknown, status = 200, headers: Record<string,string> = {}) {
   return new Response(JSON.stringify(data, null, 2), {
     status,
-    headers: { "content-type": "application/json; charset=utf-8", ...headers },
+    headers: { "content-type": "application/json; charset=utf-8", ...headers }
   });
 }
 
-function jsonHeadOrGet(req: Request, data: unknown, status = 200, headers: Record<string, string> = {}) {
+function jsonHeadOrGet(req: Request, data: unknown, status = 200, headers: Record<string,string> = {}) {
   const body = JSON.stringify(data, null, 2);
   return new Response(req.method === "HEAD" ? null : body, {
     status,
-    headers: { "content-type": "application/json; charset=utf-8", ...headers },
+    headers: { "content-type": "application/json; charset=utf-8", ...headers }
   });
 }
 
 async function sha256HexAsync(input: string): Promise<string> {
   const bytes = new TextEncoder().encode(input);
   const digest = await crypto.subtle.digest("SHA-256", bytes);
-  return [...new Uint8Array(digest)]
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
+  return [...new Uint8Array(digest)].map(b => b.toString(16).padStart(2,"0")).join("");
 }
 
 function clampLimit(v: string | null, maxDefault: number) {
@@ -48,12 +43,10 @@ function clampLimit(v: string | null, maxDefault: number) {
 
 function getLane(u: URL, env: Env) {
   const lane = (u.searchParams.get("lane") || env.LANE_DEFAULT || "stable").toLowerCase();
-  return lane === "sandbox" ? "sandbox" : "stable";
+  return (lane === "sandbox") ? "sandbox" : "stable";
 }
 
 function replayWindowOk(ts: string): boolean {
-  // Decade-stable default: accept submissions within 7 days of server time.
-  // Maintainers may accept historical submissions explicitly during review.
   const t = Date.parse(ts);
   if (!Number.isFinite(t)) return false;
   const now = Date.now();
@@ -68,42 +61,25 @@ function openapiDoc(origin: string) {
     info: {
       title: "ONETOO AI Search API",
       version: "2.0",
-      description:
-        "Thin, decade-stable AI search endpoint. Demo scaffold returns deterministic results and a proof bundle stub.",
+      description: "Thin, decade-stable AI search endpoint. Demo scaffold returns deterministic results and a proof bundle stub."
     },
     servers: [{ url: origin }],
     paths: {
-      "/health": {
-        get: { summary: "Health check", responses: { "200": { description: "OK" } } },
-      },
-      "/healthz": {
-        get: { summary: "Health check (alias)", responses: { "200": { description: "OK" } } },
-      },
-      "/openapi.json": {
-        get: { summary: "OpenAPI doc", responses: { "200": { description: "OpenAPI JSON" } } },
-      },
-      "/trust": {
-        get: {
-          summary: "Trust discovery (human-friendly)",
-          responses: { "200": { description: "Trust discovery JSON" } },
-        },
-      },
-      "/.well-known/ai-trust.json": {
-        get: {
-          summary: "Trust discovery (machine-readable)",
-          responses: { "200": { description: "TFWS AI trust JSON" } },
-        },
-      },
+      "/health": { get: { summary: "Health check", responses: { "200": { description: "OK" } } } },
+      "/healthz": { get: { summary: "Health check (alias)", responses: { "200": { description: "OK" } } } },
+      "/openapi.json": { get: { summary: "OpenAPI doc", responses: { "200": { description: "OpenAPI JSON" } } } },
+      "/trust": { get: { summary: "Trust discovery (human-friendly)", responses: { "200": { description: "Trust discovery JSON" } } } },
+      "/.well-known/ai-trust.json": { get: { summary: "Trust discovery (machine-readable)", responses: { "200": { description: "TFWS AI trust JSON" } } } },
       "/search/v1": {
         get: {
           summary: "Search (alias)",
           parameters: [
             { name: "q", in: "query", required: false, schema: { type: "string" } },
             { name: "lane", in: "query", required: false, schema: { type: "string", enum: ["stable", "sandbox"] } },
-            { name: "limit", in: "query", required: false, schema: { type: "integer", minimum: 1, maximum: 100 } },
+            { name: "limit", in: "query", required: false, schema: { type: "integer", minimum: 1, maximum: 100 } }
           ],
-          responses: { "200": { description: "Search results" } },
-        },
+          responses: { "200": { description: "Search results" } }
+        }
       },
       "/search/v2": {
         get: {
@@ -111,145 +87,116 @@ function openapiDoc(origin: string) {
           parameters: [
             { name: "q", in: "query", required: false, schema: { type: "string" } },
             { name: "lane", in: "query", required: false, schema: { type: "string", enum: ["stable", "sandbox"] } },
-            { name: "limit", in: "query", required: false, schema: { type: "integer", minimum: 1, maximum: 100 } },
+            { name: "limit", in: "query", required: false, schema: { type: "integer", minimum: 1, maximum: 100 } }
           ],
-          responses: { "200": { description: "Search results" } },
-        },
+          responses: { "200": { description: "Search results" } }
+        }
       },
-      "/contrib/v2/submit": {
-        post: { summary: "Submit contribution (pending)", responses: { "202": { description: "Accepted into pending store" } } },
-      },
-      "/contrib/v2/pending": {
-        get: { summary: "List pending contributions (dev)", responses: { "200": { description: "Pending list" } } },
-      },
-      "/contrib/v2/accepted": {
-        get: { summary: "Get accepted-set URL (out-of-band verification)", responses: { "200": { description: "Accepted-set pointer" } } },
-      },
-    },
+      "/contrib/v2/submit": { post: { summary: "Submit contribution (pending)", responses: { "202": { description: "Accepted into pending store" } } } },
+      "/contrib/v2/pending": { get: { summary: "List pending contributions (dev)", responses: { "200": { description: "Pending list" } } } },
+      "/contrib/v2/accepted": { get: { summary: "Get accepted-set URL (out-of-band verification)", responses: { "200": { description: "Accepted-set pointer" } } } }
+    }
   };
 }
 
-// Local dev store
 const pendingStore = new MemoryPendingStore();
 
 export default {
   async fetch(req: Request, env: Env): Promise<Response> {
     const u = new URL(req.url);
 
-    const corsCacheHeaders = {
+    const corsCache = {
       "access-control-allow-origin": "*",
-      "cache-control": "public, max-age=300",
+      "cache-control": "public, max-age=300"
     };
 
-    // OpenAPI (supports GET + HEAD)
     if (u.pathname === "/openapi.json" && (req.method === "GET" || req.method === "HEAD")) {
-      return jsonHeadOrGet(req, openapiDoc(u.origin), 200, corsCacheHeaders);
+      return jsonHeadOrGet(req, openapiDoc(u.origin), 200, corsCache);
     }
 
-    // Health (supports GET + HEAD)
-    if ((u.pathname === "/healthz" || u.pathname === "/health") && (req.method === "GET" || req.method === "HEAD")) {
-      return jsonHeadOrGet(req, { ok: true, service: "onetoo-ai-search-v2", time: nowIso() }, 200, corsCacheHeaders);
+    if ((u.pathname === "/health" || u.pathname === "/healthz") && (req.method === "GET" || req.method === "HEAD")) {
+      return jsonHeadOrGet(req, { ok: true, service: "onetoo-ai-search-v2", time: nowIso() }, 200, corsCache);
     }
 
-    // Trust discovery (supports GET + HEAD)
     if (u.pathname === "/trust" && (req.method === "GET" || req.method === "HEAD")) {
-      return jsonHeadOrGet(
-        req,
-        {
-          ok: true,
-          service: "onetoo-ai-search-v2",
-          trust_root: "https://www.onetoo.eu/.well-known/minisign.pub",
-          key_history: "https://www.onetoo.eu/.well-known/key-history.json",
-          dumps_sha256: "https://www.onetoo.eu/dumps/sha256.json",
-          dumps_release: "https://www.onetoo.eu/dumps/release.json",
-          active_kid_hint: "BEAF18316BE2FC65",
-          accepted_set_url: env.ACCEPTED_SET_URL,
-          accepted_set_sig_url: env.ACCEPTED_SET_URL + ".minisig",
-        },
-        200,
-        corsCacheHeaders
-      );
+      return jsonHeadOrGet(req, {
+        ok: true,
+        service: "onetoo-ai-search-v2",
+        trust_root: "https://www.onetoo.eu/.well-known/minisign.pub",
+        key_history: "https://www.onetoo.eu/.well-known/key-history.json",
+        dumps_sha256: "https://www.onetoo.eu/dumps/sha256.json",
+        dumps_release: "https://www.onetoo.eu/dumps/release.json",
+        active_kid_hint: "BEAF18316BE2FC65",
+        accepted_set_url: env.ACCEPTED_SET_URL,
+        accepted_set_sig_url: env.ACCEPTED_SET_URL + ".minisig"
+      }, 200, corsCache);
     }
 
     if (u.pathname === "/.well-known/ai-trust.json" && (req.method === "GET" || req.method === "HEAD")) {
-      return jsonHeadOrGet(
-        req,
-        {
-          schema: "tfws-ai-trust/v1",
-          updated_at: nowIso(),
-          service: "onetoo-ai-search-v2",
-          trust_root: "https://www.onetoo.eu/.well-known/minisign.pub",
-          key_history: "https://www.onetoo.eu/.well-known/key-history.json",
-          dumps: {
-            sha256: "https://www.onetoo.eu/dumps/sha256.json",
-            release: "https://www.onetoo.eu/dumps/release.json",
-          },
-          accepted_set: {
-            url: env.ACCEPTED_SET_URL,
-            sig_url: env.ACCEPTED_SET_URL + ".minisig",
-          },
-          active_kid_hint: "BEAF18316BE2FC65",
+      return jsonHeadOrGet(req, {
+        schema: "tfws-ai-trust/v1",
+        updated_at: nowIso(),
+        service: "onetoo-ai-search-v2",
+        trust_root: "https://www.onetoo.eu/.well-known/minisign.pub",
+        key_history: "https://www.onetoo.eu/.well-known/key-history.json",
+        dumps: {
+          sha256: "https://www.onetoo.eu/dumps/sha256.json",
+          release: "https://www.onetoo.eu/dumps/release.json"
         },
-        200,
-        corsCacheHeaders
-      );
+        accepted_set: {
+          url: env.ACCEPTED_SET_URL,
+          sig_url: env.ACCEPTED_SET_URL + ".minisig"
+        },
+        active_kid_hint: "BEAF18316BE2FC65"
+      }, 200, corsCache);
     }
 
-    // Search (supports GET + HEAD)
-    if ((u.pathname === "/search/v2" || u.pathname === "/search/v1") && (req.method === "GET" || req.method === "HEAD")) {
+    if ((u.pathname === "/search/v1" || u.pathname === "/search/v2") && (req.method === "GET" || req.method === "HEAD")) {
       const q = (u.searchParams.get("q") || "").trim();
       const lane = getLane(u, env);
       const limit = clampLimit(u.searchParams.get("limit"), Number(env.MAX_LIMIT || 20));
-      const generatedAt = nowIso();
+      const t = nowIso();
 
-      const results = q
-        ? [
-            {
-              url: "https://onetoo.eu/",
-              title: "onetoo.eu — Trust-First AI Hub",
-              snippet: "Signed, archival-grade trust artifacts (TFWS v2).",
-              score: 1.0,
-              trust_state: {
-                version: "2.0",
-                generated_at: generatedAt,
-                subject: "https://onetoo.eu/",
-                state: "partial",
-                signals: ["tfws-v2", "artifact-first", "proof-bundle"],
-                notes: "Demo trust state (wire to real verification pipeline).",
-              },
-            },
-          ]
-        : [];
+      const results = q ? [{
+        url: "https://onetoo.eu/",
+        title: "onetoo.eu — Trust-First AI Hub",
+        snippet: "Signed, archival-grade trust artifacts (TFWS v2).",
+        score: 1.0,
+        trust_state: {
+          version: "2.0",
+          generated_at: t,
+          subject: "https://onetoo.eu/",
+          state: "partial",
+          signals: ["tfws-v2", "artifact-first", "proof-bundle"],
+          notes: "Demo trust state (wire to real verification pipeline)."
+        }
+      }] : [];
 
-      const payload = {
+      return jsonHeadOrGet(req, {
         version: "2.0",
         query: q,
         lane,
         results: results.slice(0, limit),
         proof: {
           version: "2.0",
-          generated_at: generatedAt,
+          generated_at: t,
           accepted_set: {
             url: env.ACCEPTED_SET_URL,
             sha256: "TODO",
-            sig_url: env.ACCEPTED_SET_URL + ".minisig",
+            sig_url: env.ACCEPTED_SET_URL + ".minisig"
           },
-          verified_sources: [{ base_url: "https://onetoo.eu/", status: "partial", checks: ["demo-mode"] }],
-          checks: ["proof-bundle-v2"],
-        },
-      };
-
-      return jsonHeadOrGet(req, payload, 200, corsCacheHeaders);
+          verified_sources: [
+            { base_url: "https://onetoo.eu/", status: "partial", checks: ["demo-mode"] }
+          ],
+          checks: ["proof-bundle-v2"]
+        }
+      }, 200, corsCache);
     }
 
-    // Contrib submit (POST only)
     if (u.pathname === "/contrib/v2/submit" && req.method === "POST") {
       let body: any;
-      try {
-        body = await req.json();
-      } catch {
-        return json({ ok: false, error: "invalid_json" }, 400);
-      }
+      try { body = await req.json(); }
+      catch { return json({ ok: false, error: "invalid_json" }, 400); }
 
       if (!body?.timestamp || !replayWindowOk(String(body.timestamp))) {
         return json({ ok: false, error: "replay_window_failed" }, 400);
@@ -266,36 +213,35 @@ export default {
       }
 
       await pendingStore.put(id, body);
-
-      return json(
-        { ok: true, id, stored: "pending", note: "Stable lane unchanged until maintainer publishes signed accepted-set." },
-        202,
-        { "access-control-allow-origin": "*" }
-      );
+      return json({ ok: true, id, stored: "pending", note: "Stable lane unchanged until maintainer publishes signed accepted-set." }, 202, {
+        "access-control-allow-origin": "*"
+      });
     }
 
-    // Pending list (GET + HEAD)
     if (u.pathname === "/contrib/v2/pending" && (req.method === "GET" || req.method === "HEAD")) {
       const limit = clampLimit(u.searchParams.get("limit"), 50);
       const list = await pendingStore.list(limit);
-      return jsonHeadOrGet(req, { ok: true, count: list.length, items: list }, 200, { "access-control-allow-origin": "*" });
+      return jsonHeadOrGet(req, { ok: true, count: list.length, items: list }, 200, {
+        "access-control-allow-origin": "*"
+      });
     }
 
     if (u.pathname === "/contrib/v2/pending/" && (req.method === "GET" || req.method === "HEAD")) {
-      return jsonHeadOrGet(req, { ok: false, error: "use /contrib/v2/pending?id=..." }, 400, { "access-control-allow-origin": "*" });
+      return jsonHeadOrGet(req, { ok: false, error: "use /contrib/v2/pending?id=..." }, 400, {
+        "access-control-allow-origin": "*"
+      });
     }
 
-    // Accepted pointer (GET + HEAD)
     if (u.pathname === "/contrib/v2/accepted" && (req.method === "GET" || req.method === "HEAD")) {
-      return jsonHeadOrGet(
-        req,
-        { ok: true, accepted_set_url: env.ACCEPTED_SET_URL, note: "Fetch this artifact from the trust hub and verify signature out-of-band." },
-        200,
-        { "access-control-allow-origin": "*" }
-      );
+      return jsonHeadOrGet(req, {
+        ok: true,
+        accepted_set_url: env.ACCEPTED_SET_URL,
+        note: "Fetch this artifact from the trust hub and verify signature out-of-band."
+      }, 200, {
+        "access-control-allow-origin": "*"
+      });
     }
 
     return json({ ok: false, error: "not_found" }, 404);
-  },
+  }
 };
-```
