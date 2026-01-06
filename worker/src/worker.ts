@@ -60,6 +60,11 @@ export default {
       return json({ ok: true, service: "onetoo-ai-search-v2", time: nowIso() });
     }
 
+    // Alias for older clients / OpenAPI compatibility
+    if (u.pathname === "/health") {
+      return json({ ok: true, service: "onetoo-ai-search-v2", time: nowIso() });
+    }
+
     // Trust discovery (decade-stable): AI Search inherits trust root from onetoo.eu
     if (u.pathname === "/trust" && req.method === "GET") {
       return json({
@@ -100,7 +105,7 @@ export default {
       });
     }
 
-    if (u.pathname === "/search/v2" && req.method === "GET") {
+    if ((u.pathname === "/search/v2" || u.pathname === "/search/v1") && req.method === "GET") {
       const q = (u.searchParams.get("q") || "").trim();
       const lane = getLane(u, env);
       const limit = clampLimit(u.searchParams.get("limit"), Number(env.MAX_LIMIT || 20));
